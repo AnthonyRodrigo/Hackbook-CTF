@@ -1,0 +1,22 @@
+
+@import url(https://fonts.googleapis.com/css?family=Inconsolata:200,300,regular,500,600,700,800,900);
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* body{
+     font-family: 'Inconsolata';
+} */
+
+html, body {
+    scroll-behavior: smooth;
+    /* padding-bottom:4rem !important; */
+    /* overflow-x: hidden; */
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

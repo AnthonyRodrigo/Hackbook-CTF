@@ -1,0 +1,49 @@
+version: "3.9"
+name: "hackbook"
+services:
+  blog-php-apache:
+    ports:
+      - "80:80"
+    build: 
+      context: ..
+      dockerfile: "docker/blog/php/Dockerfile"
+    restart: always
+    depends_on:
+      - blog-mysql
+  blog-mysql:
+    restart: always
+    container_name: blog-mysql
+    build: 
+      context: ..
+      dockerfile: "docker/blog/mysql/Dockerfile"
+    environment:
+      MYSQL_ROOT_PASSWORD: "LaClasseAmer1ca1ne"
+      MYSQL_DATABASE: "blog"
+    volumes:
+      - ./blog/mysql/start.sql:/docker-entrypoint-initdb.d/start.sql
+  social-network:
+    build:
+      context: ..
+      dockerfile: "docker/social-network/Dockerfile"
+    container_name: social-network
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - social-network-mongo
+    environment:
+      MONGODB_URI: mongodb://root:LaClasseAmer1ca1ne@social-network-mongo:27017/
+  social-network-mongo:
+    container_name: social-network-mongo
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: LaClasseAmer1ca1ne
+      BLOG_BASE_URL: "http://localhost:80"
+      LEA_INSTA_URL: "https://www.instagram.com/lea.leroux.gribouille/"
+    volumes:
+      - ./social-network/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - social-network-mongodb:/data/db
+volumes:
+  social-network-mongodb:

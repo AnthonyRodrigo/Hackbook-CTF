@@ -1,0 +1,76 @@
+version: "3.9"
+name: "Hackbook"
+services:
+  blog-php-apache:
+    container_name: blog-apache
+    ports:
+      - "8080:80"
+    build: 
+      context: ..
+      dockerfile: "docker/blog/php/Dockerfile"
+    volumes:
+      - ../src/blog/site:/var/www/html
+      - ./blog/php/conf:/usr/local/etc/php
+      - ../src/blog/includes_php:/var/www
+    restart: always
+    depends_on:
+      - blog-mysql
+  blog-mysql:
+    restart: always
+    container_name: blog-mysql
+    build: 
+      context: ..
+      dockerfile: "docker/blog/mysql/Dockerfile"
+    environment:
+      MYSQL_ROOT_PASSWORD: "LaClasseAmer1ca1ne"
+      MYSQL_DATABASE: "blog"
+    volumes:
+      - ./blog/mysql/start.sql:/docker-entrypoint-initdb.d/start.sql
+      - blog-db:/var/lib/mysql
+  social-network:
+    build:
+      context: ..
+      dockerfile: "docker/social-network/Dockerfile"
+      target: deps
+    working_dir: "/app"
+    entrypoint: ["npm", "run", "dev"]
+    container_name: social-network
+    restart: always
+    volumes:
+      - ../src/social-network:/app
+      - /app/node_modules
+    ports:
+      - "80:3000"
+    depends_on:
+      - social-network-mongo
+    environment:
+      MONGODB_URI: mongodb://root:LaClasseAmer1ca1ne@social-network-mongo:27017/
+  social-network-mongo:
+    container_name: social-network-mongo
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: LaClasseAmer1ca1ne
+      BLOG_BASE_URL: "http://localhost:8080"
+    volumes:
+      - social-network-mongodb:/data/db
+      - social-network-mongoconfig:/data/configdb
+      - ./social-network/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: LaClasseAmer1ca1ne
+      ME_CONFIG_MONGODB_URL: mongodb://root:LaClasseAmer1ca1ne@social-network-mongo:27017/
+    depends_on:
+      - social-network-mongo
+volumes:
+  social-network-mongodb:
+  social-network-mongoconfig:
+  blog-db:
