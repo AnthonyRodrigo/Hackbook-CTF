@@ -3,7 +3,7 @@ name: "hackbook"
 services:
   blog-php-apache:
     ports:
-      - "80:80"
+      - "8080:80"
     build: 
       context: ..
       dockerfile: "docker/blog/php/Dockerfile"
@@ -40,7 +40,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: LaClasseAmer1ca1ne
-      BLOG_BASE_URL: "http://localhost:80"
+      BLOG_BASE_URL: "http://localhost:8080"
       LEA_INSTA_URL: "https://www.instagram.com/lea.leroux.gribouille/"
     volumes:
       - ./social-network/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
